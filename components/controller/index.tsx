@@ -10,38 +10,54 @@ import {
 	Brush,
 	Node,
 	Algorithm,
+	SearchAlgorithm,
 	FieldState,
 	ControllerState,
 	SearchResult
 } from "../../shared/types";
+import { pair } from "../../shared/helpers";
 import { pointId, ntp, cmpPoints } from "../../shared/helpers";
 import { Box } from "rebass";
 import { Map } from "immutable";
+import dijkstra from "../../algorithms/dijkstra";
 import aStar from "../../algorithms/a_star";
 
 import Board from "../board";
 import OptionsBar from "../options_bar";
 
-const bf = (brush: Brush, field: FieldState) => ({ brush, field });
+const brushStateMap: Map<Brush, FieldState> = Map([
+	pair(Brush.Wall, FieldState.Wall),
+	pair(Brush.Clear, FieldState.Unvisited),
+	pair(Brush.Start, FieldState.Start),
+	pair(Brush.Goal, FieldState.Goal)
+]);
 
-const values = [
-	bf(Brush.Wall, FieldState.Wall),
-	bf(Brush.Clear, FieldState.Unvisited),
-	bf(Brush.Start, FieldState.Start),
-	bf(Brush.Goal, FieldState.Goal)
-];
-const tuples = values.map(v => [v.brush, v.field] as [Brush, FieldState]);
-const brushStateMap: Map<Brush, FieldState> = Map(tuples);
+const algorithmMap: Map<Algorithm, SearchAlgorithm> = Map([
+	pair(Algorithm.Dijkstra, dijkstra),
+	pair(Algorithm.Astar, aStar)
+]);
 
 const ERROR_POINT: Point = { x: -42, y: -42 };
 
 const Controller: FunctionComponent = () => {
-	const [{ width, height }, changeSize] = useState({ width: 20, height: 20 });
+	const [{ width, height }, changeSize] = useState({ width: 30, height: 20 });
 	const [brush, changeBrush] = useState(Brush.Wall);
 	const [algorithm, changeAlgorithm] = useState(Algorithm.Dijkstra);
 	const [start, setStart] = useState({ x: 0, y: 0 });
 	const [goal, setGoal] = useState({ x: width - 1, y: height - 1 });
 	const [ctrlState, setCtrlState] = useState(ControllerState.EditBoard);
+	const [mouseDown, setMouseDown] = useState(0);
+	const [timeoutId, setTimeoutId] = useState(0);
+	const [incr, decr] = [
+		() => {
+			setMouseDown(x => x + 1);
+			clearTimeout(timeoutId);
+			const id = setTimeout(() => setMouseDown(0), 3000);
+			setTimeoutId(id);
+		},
+		() => setMouseDown(x => Math.max(x - 1, 0))
+	];
+	useEffect(() => console.log(mouseDown), [mouseDown]);
 	const animationId = useRef(0);
 	const board: MutableRefObject<Node[][]> = useRef([]);
 	useEffect(() => {
@@ -55,6 +71,16 @@ const Controller: FunctionComponent = () => {
 			board.current = copy;
 		}
 	}, []);
+	useEffect(() => {
+		document.body.addEventListener("mousedown", incr);
+		document.body.addEventListener("mouseup", decr);
+		return () => {
+			document.body.removeEventListener("mousedown", incr);
+			document.body.removeEventListener("mouseup", decr);
+		};
+	}, []);
+
+	const isMousePressed = () => mouseDown > 0;
 
 	const changeFieldState = (point: Point, state: FieldState) => {
 		const id = pointId(point);
@@ -158,7 +184,8 @@ const Controller: FunctionComponent = () => {
 			clearAfterSearch();
 		}
 		setCtrlState(ControllerState.SearchActive);
-		const res = aStar(start, goal, board.current.flat(), () => 0);
+		const alg = algorithmMap.get(algorithm)!;
+		const res = alg(start, goal, board.current.flat());
 		animationId.current = requestAnimationFrame(() => animate(0, 10, res));
 	};
 
@@ -176,7 +203,7 @@ const Controller: FunctionComponent = () => {
 				{...{ changeAlgorithm, changeBrush, changeSize, startSearch }}
 			/>
 			<Box mt={4}>
-				<Board {...{ width, height, onNodeClick }} />
+				<Board {...{ width, height, onNodeClick, isMousePressed }} />
 			</Box>
 		</div>
 	);

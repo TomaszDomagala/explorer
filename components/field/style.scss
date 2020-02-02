@@ -1,18 +1,22 @@
 .unvisited {
-	background-color: lightslategrey;
+	background-color: #e5e7e9;
 }
 .visited {
-	background-color: lightpink;
+	background-color: #d7bde2;
 }
 .path {
-	background-color: magenta;
+	background-color: #34495e;
 }
 .wall {
-	background-color: orange;
+	background-color: coral;
 }
 .goal {
 	background-color: red;
 }
 .start {
 	background-color: greenyellow;
+}
+
+.field {
+	user-select: none;
 }
