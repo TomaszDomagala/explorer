@@ -12,10 +12,10 @@ export type Node = {
 	y: number;
 	walkable: boolean;
 };
-export type ArrayBoard = Array<Node>;
+export type ArrayBoard = Node[];
 
 export type SearchResult = {
-	visitOrder: Array<Node>;
+	visitOrder: Node[];
 	visitedPaths: Node[][];
 	totalSteps: number;
 };

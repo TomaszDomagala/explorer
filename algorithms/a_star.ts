@@ -1,6 +1,6 @@
-import { Set, Map, has } from "immutable";
-import { Point, Node, ArrayBoard, SearchResult } from "../models/types";
-import { pointHash, nodeHash, ntp } from "../common";
+import { Set, Map} from "immutable";
+import { Point, Node, ArrayBoard, SearchResult } from "../shared/types";
+import { pointHash, nodeHash, ntp } from "../shared/helpers";
 
 type heuristic_function = (node: Point, goal: Point) => number;
 const point = (x: number, y: number): Point => ({ x, y });

@@ -9,6 +9,7 @@ class MyDocument extends Document {
 						href="https://fonts.googleapis.com/css?family=Noto+Sans&display=block"
 						rel="stylesheet"
 					/>
+					<title>Explorer!</title>
 				</Head>
 				<body>
 					<Main />

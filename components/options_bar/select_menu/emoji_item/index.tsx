@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from "react";
+import React from "react";
 import { Text } from "rebass";
 import Emoji from "../../../../shared/components/emoji";
 

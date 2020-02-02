@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from "react";
-import { Point } from "../../models/types";
-import { pointId } from "../../common";
+import { Point } from "../../shared/types";
+import { pointId } from "../../shared/helpers";
 import "./style.scss";
 
 type FieldProps = {
