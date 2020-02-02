@@ -1,7 +1,20 @@
-import React, { FunctionComponent, useState } from "react";
-import { Point, Brush, Node, Algorithm, FieldState } from "../../models/types";
+import React, {
+	FunctionComponent,
+	useState,
+	useEffect,
+	useRef,
+	MutableRefObject
+} from "react";
+import {
+	Point,
+	Brush,
+	Node,
+	Algorithm,
+	FieldState,
+	ControllerState
+} from "../../models/types";
 import { nodeId, pointId, ntp, cmpPoints } from "../../common";
-import { Button } from "rebass";
+import { Button, Box } from "rebass";
 import { List, Map } from "immutable";
 import aStar from "../../algorithms/a_star";
 
@@ -27,15 +40,20 @@ const Controller: FunctionComponent = () => {
 	const [algorithm, changeAlgorithm] = useState(Algorithm.Dijkstra);
 	const [start, setStart] = useState({ x: 0, y: 0 });
 	const [goal, setGoal] = useState({ x: width - 1, y: height - 1 });
-
-	const board: Array<Array<Node>> = [];
-	for (let y = 0; y < height; y++) {
-		const row: Array<Node> = [];
-		for (let x = 0; x < width; x++) {
-			row.push({ x, y, walkable: true });
+	const [ctrlState, setCtrlState] = useState(ControllerState.EditBoard);
+	const animationId = useRef(0);
+	const board: MutableRefObject<Node[][]> = useRef([]);
+	useEffect(() => {
+		for (let y = 0; y < height; y++) {
+			const row: Array<Node> = [];
+			for (let x = 0; x < width; x++) {
+				row.push({ x, y, walkable: true });
+			}
+			const copy = board.current.slice();
+			copy.push(row);
+			board.current = copy;
 		}
-		board.push(row);
-	}
+	}, []);
 
 	const changeFieldState = (point: Point, state: FieldState) => {
 		const id = pointId(point);
@@ -48,17 +66,23 @@ const Controller: FunctionComponent = () => {
 	};
 
 	const onNodeClick = (point: Point) => {
-		board[point.y][point.x].walkable = brush !== Brush.Wall;
+		if (ctrlState === ControllerState.SearchActive) return;
+		if (ctrlState === ControllerState.SearchDone) {
+			clearAfterSearch();
+			setCtrlState(ControllerState.EditBoard);
+		}
+
+		board.current[point.y][point.x].walkable = brush !== Brush.Wall;
 		const isStart = cmpPoints(point, start);
 		const isGoal = cmpPoints(point, goal);
 		switch (brush) {
 			case Brush.Start: {
-				if (isGoal) setGoal(start);
+				changeFieldState(start, FieldState.Unvisited);
 				setStart(point);
 				break;
 			}
 			case Brush.Goal: {
-				if (isStart) setStart(goal);
+				changeFieldState(goal, FieldState.Unvisited);
 				setGoal(point);
 				break;
 			}
@@ -68,46 +92,68 @@ const Controller: FunctionComponent = () => {
 			}
 		}
 
-		// if (brush === Brush.Start && cmpPoints(point, goal)) {
-		// 	setGoal(start);
-		// 	setStart(point);
-		// } else if (brush === Brush.Goal && cmpPoints(point, start)) {
-		// 	setStart(goal);
-		// 	setGoal(point);
-		// } else if (brush === Brush.Start) {
-		// 	setStart(point);
-		// } else if (brush === Brush.Goal) {
-		// 	setStart(point);
-		// } else if (cmpPoints(point, start)) {
-		// 	setStart(ERROR_POINT);
-		// } else if (cmpPoints(point, goal)) {
-		// 	setGoal(ERROR_POINT);
-		// }
-
 		changeFieldState(point, brushStateMap.get(brush)!);
 	};
 
 	const animate = (steps: number, index: number, nodes: Array<Node>) => {
 		const ceiling = Math.min(nodes.length, index + steps);
 		for (let i = index; i < ceiling; i++) {
-			changeFieldState(ntp(nodes[i]), FieldState.Visited);
+			const point = ntp(nodes[i]);
+			//TODO remove this for better performance?
+			if (!cmpPoints(point, start) && !cmpPoints(point, goal)) {
+				changeFieldState(point, FieldState.Visited);
+			}
 		}
 		if (ceiling < nodes.length) {
-			requestAnimationFrame(() => animate(steps, index + steps, nodes));
+			animationId.current = requestAnimationFrame(() =>
+				animate(steps, index + steps, nodes)
+			);
+		} else {
+			setCtrlState(ControllerState.SearchDone);
 		}
 	};
 
-	const startSearch = () => {
-		const res = aStar(start, goal, board.flat(), () => 0);
-		requestAnimationFrame(() => animate(10, 0, res.visitOrder));
+	const clearAfterSearch = () => {
+		for (let y = 0; y < height; y++) {
+			for (let x = 0; x < width; x++) {
+				changeFieldState(
+					{ x, y },
+					board.current[y][x].walkable ? FieldState.Unvisited : FieldState.Wall
+				);
+			}
+		}
+		changeFieldState(start, FieldState.Start);
+		changeFieldState(goal, FieldState.Goal);
 	};
+
+	const startSearch = () => {
+		if (ctrlState === ControllerState.SearchActive) return;
+		if (ctrlState === ControllerState.SearchDone) {
+			clearAfterSearch();
+		}
+		setCtrlState(ControllerState.SearchActive);
+		const res = aStar(start, goal, board.current.flat(), () => 0);
+		animationId.current = requestAnimationFrame(() =>
+			animate(10, 0, res.visitOrder)
+		);
+	};
+
+	useEffect(() => {
+		changeFieldState(start, FieldState.Start);
+		changeFieldState(goal, FieldState.Goal);
+		return () => {
+			cancelAnimationFrame(animationId.current);
+		};
+	}, []);
 
 	return (
 		<div>
 			<OptionsBar
 				{...{ changeAlgorithm, changeBrush, changeSize, startSearch }}
 			/>
-			<Board {...{ width, height, onNodeClick }} />
+			<Box mt={4}>
+				<Board {...{ width, height, onNodeClick }} />
+			</Box>
 		</div>
 	);
 };
