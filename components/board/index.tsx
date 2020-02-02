@@ -23,7 +23,7 @@ const Board: FunctionComponent<BoardProps> = ({
 	}
 	return (
 		<div>
-			<table>
+			<table style={{ marginLeft: "auto", marginRight: "auto" }}>
 				<tbody>
 					{matrix.map((row, y_index) => (
 						<tr key={`y_${y_index}`}>

@@ -13,10 +13,17 @@ export type Node = {
 	walkable: boolean;
 };
 export type ArrayBoard = Array<Node>;
+
 export type SearchResult = {
 	visitOrder: Array<Node>;
 	path: Array<Node> | null;
 };
+
+export enum ControllerState {
+	EditBoard,
+	SearchActive,
+	SearchDone
+}
 
 export enum Brush {
 	Start = "start",
