@@ -21,6 +21,8 @@ const a_star = (
 	let gScore: Map<string, number> = Map();
 	let fScore: Map<string, number> = Map();
 	const visited: Array<string> = [];
+	const visitedPaths: Node[][] = [];
+	visitedPaths[-1] = [];
 	board.forEach(node => {
 		const hash = nodeHash(node);
 		hashToNodeMap = hashToNodeMap.set(hash, node);
@@ -75,11 +77,13 @@ const a_star = (
 	while (!openSet.isEmpty()) {
 		const currentHash = getNewCurrent();
 		visited.push(currentHash);
+		visitedPaths.push(pathOf(currentHash));
 		if (currentHash === goalHash) {
-			return {
-				visitOrder: getVisitedOrder(),
-				path: pathOf(goalHash)
-			};
+			break;
+			// return {
+			// 	visitOrder: getVisitedOrder(),
+			// 	visitedPaths
+			// };
 		}
 		openSet = openSet.remove(currentHash);
 		getNeighbours(currentHash).forEach(hash => {
@@ -99,7 +103,8 @@ const a_star = (
 	}
 	return {
 		visitOrder: getVisitedOrder(),
-		path: null
+		visitedPaths,
+		totalSteps: visitedPaths.length
 	};
 };
 

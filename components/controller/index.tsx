@@ -11,7 +11,8 @@ import {
 	Node,
 	Algorithm,
 	FieldState,
-	ControllerState
+	ControllerState,
+	SearchResult
 } from "../../models/types";
 import { nodeId, pointId, ntp, cmpPoints } from "../../common";
 import { Button, Box } from "rebass";
@@ -95,23 +96,48 @@ const Controller: FunctionComponent = () => {
 		changeFieldState(point, brushStateMap.get(brush)!);
 	};
 
-	const animate = (steps: number, index: number, nodes: Array<Node>) => {
-		const ceiling = Math.min(nodes.length, index + steps);
+	const animate = (index: number, stepsPerFrame: number, res: SearchResult) => {
+		const { totalSteps, visitOrder, visitedPaths } = res;
+		const ceiling = Math.min(totalSteps, index + stepsPerFrame);
 		for (let i = index; i < ceiling; i++) {
-			const point = ntp(nodes[i]);
-			//TODO remove this for better performance?
-			if (!cmpPoints(point, start) && !cmpPoints(point, goal)) {
-				changeFieldState(point, FieldState.Visited);
-			}
+			const point = ntp(visitOrder[i]);
+			changeFieldState(point, FieldState.Visited);
 		}
-		if (ceiling < nodes.length) {
+		visitedPaths[index - 1].forEach(({ x, y }) =>
+			changeFieldState({ x, y }, FieldState.Visited)
+		);
+		visitedPaths[ceiling - 1].forEach(({ x, y }) =>
+			changeFieldState({ x, y }, FieldState.Path)
+		);
+
+		changeFieldState(start, FieldState.Start);
+		changeFieldState(goal, FieldState.Goal);
+		if (ceiling < totalSteps) {
 			animationId.current = requestAnimationFrame(() =>
-				animate(steps, index + steps, nodes)
+				animate(index + stepsPerFrame, stepsPerFrame, res)
 			);
 		} else {
 			setCtrlState(ControllerState.SearchDone);
 		}
 	};
+
+	// const animate = (steps: number, index: number, nodes: Array<Node>) => {
+	// 	const ceiling = Math.min(nodes.length, index + steps);
+	// 	for (let i = index; i < ceiling; i++) {
+	// 		const point = ntp(nodes[i]);
+	// 		//TODO remove this for better performance?
+	// 		if (!cmpPoints(point, start) && !cmpPoints(point, goal)) {
+	// 			changeFieldState(point, FieldState.Visited);
+	// 		}
+	// 	}
+	// 	if (ceiling < nodes.length) {
+	// 		animationId.current = requestAnimationFrame(() =>
+	// 			animate(steps, index + steps, nodes)
+	// 		);
+	// 	} else {
+	// 		setCtrlState(ControllerState.SearchDone);
+	// 	}
+	// };
 
 	const clearAfterSearch = () => {
 		for (let y = 0; y < height; y++) {
@@ -133,9 +159,7 @@ const Controller: FunctionComponent = () => {
 		}
 		setCtrlState(ControllerState.SearchActive);
 		const res = aStar(start, goal, board.current.flat(), () => 0);
-		animationId.current = requestAnimationFrame(() =>
-			animate(10, 0, res.visitOrder)
-		);
+		animationId.current = requestAnimationFrame(() => animate(0, 10, res));
 	};
 
 	useEffect(() => {
