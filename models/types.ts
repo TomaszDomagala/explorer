@@ -16,7 +16,8 @@ export type ArrayBoard = Array<Node>;
 
 export type SearchResult = {
 	visitOrder: Array<Node>;
-	path: Array<Node> | null;
+	visitedPaths: Node[][];
+	totalSteps: number;
 };
 
 export enum ControllerState {
