@@ -1,5 +1,5 @@
-import React, { FunctionComponent, useState, memo } from "react";
-import { Brush, Algorithm, Size } from "../../models/types";
+import React, { FunctionComponent, memo } from "react";
+import { Brush, Algorithm, Size } from "../../shared/types";
 import { Box, Flex, Button, Text } from "rebass";
 
 import SelectMenu, { Select } from "./select_menu";

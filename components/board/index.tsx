@@ -1,5 +1,5 @@
 import React, { FunctionComponent, memo } from "react";
-import { Point } from "../../models/types";
+import { Point } from "../../shared/types";
 import Field from "../field";
 
 type BoardProps = {

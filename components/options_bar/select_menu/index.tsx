@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState, memo } from "react";
+import React, { FunctionComponent, useState} from "react";
 import { Box, Flex, Text } from "rebass";
 import SelectItem from "./select_item";
 

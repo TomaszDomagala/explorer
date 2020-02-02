@@ -1,5 +1,5 @@
 import objectHash from "object-hash";
-import { Point, Node } from "../models/types";
+import { Point, Node } from "../types";
 
 export const nodeHash = ({ x, y }: Node) => {
 	return objectHash({ x, y });

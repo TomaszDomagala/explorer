@@ -13,10 +13,10 @@ import {
 	FieldState,
 	ControllerState,
 	SearchResult
-} from "../../models/types";
-import { nodeId, pointId, ntp, cmpPoints } from "../../common";
-import { Button, Box } from "rebass";
-import { List, Map } from "immutable";
+} from "../../shared/types";
+import { pointId, ntp, cmpPoints } from "../../shared/helpers";
+import { Box } from "rebass";
+import { Map } from "immutable";
 import aStar from "../../algorithms/a_star";
 
 import Board from "../board";
