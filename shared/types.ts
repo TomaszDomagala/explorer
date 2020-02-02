@@ -20,6 +20,12 @@ export type SearchResult = {
 	totalSteps: number;
 };
 
+export type SearchAlgorithm = (
+	start: Point,
+	goal: Point,
+	board: ArrayBoard
+) => SearchResult;
+
 export enum ControllerState {
 	EditBoard,
 	SearchActive,

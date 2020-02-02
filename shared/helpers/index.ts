@@ -16,3 +16,7 @@ export const nodeId = (node: Node): string => pointId(ntp(node));
 export const cmpPoints = (p1: Point, p2: Point) => {
 	return p1.x === p2.x && p1.y === p2.y;
 };
+
+export function pair<A, B>(a: A, b: B): [A, B] {
+	return [a, b];
+}

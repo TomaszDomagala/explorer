@@ -10,33 +10,37 @@ import {
 	Brush,
 	Node,
 	Algorithm,
+	SearchAlgorithm,
 	FieldState,
 	ControllerState,
 	SearchResult
 } from "../../shared/types";
+import { pair } from "../../shared/helpers";
 import { pointId, ntp, cmpPoints } from "../../shared/helpers";
 import { Box } from "rebass";
 import { Map } from "immutable";
+import dijkstra from "../../algorithms/dijkstra";
 import aStar from "../../algorithms/a_star";
 
 import Board from "../board";
 import OptionsBar from "../options_bar";
 
-const bf = (brush: Brush, field: FieldState) => ({ brush, field });
+const brushStateMap: Map<Brush, FieldState> = Map([
+	pair(Brush.Wall, FieldState.Wall),
+	pair(Brush.Clear, FieldState.Unvisited),
+	pair(Brush.Start, FieldState.Start),
+	pair(Brush.Goal, FieldState.Goal)
+]);
 
-const values = [
-	bf(Brush.Wall, FieldState.Wall),
-	bf(Brush.Clear, FieldState.Unvisited),
-	bf(Brush.Start, FieldState.Start),
-	bf(Brush.Goal, FieldState.Goal)
-];
-const tuples = values.map(v => [v.brush, v.field] as [Brush, FieldState]);
-const brushStateMap: Map<Brush, FieldState> = Map(tuples);
+const algorithmMap: Map<Algorithm, SearchAlgorithm> = Map([
+	pair(Algorithm.Dijkstra, dijkstra),
+	pair(Algorithm.Astar, aStar)
+]);
 
 const ERROR_POINT: Point = { x: -42, y: -42 };
 
 const Controller: FunctionComponent = () => {
-	const [{ width, height }, changeSize] = useState({ width: 20, height: 20 });
+	const [{ width, height }, changeSize] = useState({ width: 50, height: 20 });
 	const [brush, changeBrush] = useState(Brush.Wall);
 	const [algorithm, changeAlgorithm] = useState(Algorithm.Dijkstra);
 	const [start, setStart] = useState({ x: 0, y: 0 });
@@ -158,7 +162,8 @@ const Controller: FunctionComponent = () => {
 			clearAfterSearch();
 		}
 		setCtrlState(ControllerState.SearchActive);
-		const res = aStar(start, goal, board.current.flat(), () => 0);
+		const alg = algorithmMap.get(algorithm)!;
+		const res = alg(start, goal, board.current.flat());
 		animationId.current = requestAnimationFrame(() => animate(0, 10, res));
 	};
 
