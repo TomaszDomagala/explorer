@@ -40,12 +40,24 @@ const algorithmMap: Map<Algorithm, SearchAlgorithm> = Map([
 const ERROR_POINT: Point = { x: -42, y: -42 };
 
 const Controller: FunctionComponent = () => {
-	const [{ width, height }, changeSize] = useState({ width: 50, height: 20 });
+	const [{ width, height }, changeSize] = useState({ width: 30, height: 20 });
 	const [brush, changeBrush] = useState(Brush.Wall);
 	const [algorithm, changeAlgorithm] = useState(Algorithm.Dijkstra);
 	const [start, setStart] = useState({ x: 0, y: 0 });
 	const [goal, setGoal] = useState({ x: width - 1, y: height - 1 });
 	const [ctrlState, setCtrlState] = useState(ControllerState.EditBoard);
+	const [mouseDown, setMouseDown] = useState(0);
+	const [timeoutId, setTimeoutId] = useState(0);
+	const [incr, decr] = [
+		() => {
+			setMouseDown(x => x + 1);
+			clearTimeout(timeoutId);
+			const id = setTimeout(() => setMouseDown(0), 3000);
+			setTimeoutId(id);
+		},
+		() => setMouseDown(x => Math.max(x - 1, 0))
+	];
+	useEffect(() => console.log(mouseDown), [mouseDown]);
 	const animationId = useRef(0);
 	const board: MutableRefObject<Node[][]> = useRef([]);
 	useEffect(() => {
@@ -59,6 +71,16 @@ const Controller: FunctionComponent = () => {
 			board.current = copy;
 		}
 	}, []);
+	useEffect(() => {
+		document.body.addEventListener("mousedown", incr);
+		document.body.addEventListener("mouseup", decr);
+		return () => {
+			document.body.removeEventListener("mousedown", incr);
+			document.body.removeEventListener("mouseup", decr);
+		};
+	}, []);
+
+	const isMousePressed = () => mouseDown > 0;
 
 	const changeFieldState = (point: Point, state: FieldState) => {
 		const id = pointId(point);
@@ -181,7 +203,7 @@ const Controller: FunctionComponent = () => {
 				{...{ changeAlgorithm, changeBrush, changeSize, startSearch }}
 			/>
 			<Box mt={4}>
-				<Board {...{ width, height, onNodeClick }} />
+				<Board {...{ width, height, onNodeClick, isMousePressed }} />
 			</Box>
 		</div>
 	);

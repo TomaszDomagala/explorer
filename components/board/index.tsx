@@ -6,12 +6,14 @@ type BoardProps = {
 	width: number;
 	height: number;
 	onNodeClick: (point: Point) => void;
+	isMousePressed: () => boolean;
 };
 
 const Board: FunctionComponent<BoardProps> = ({
 	width,
 	height,
-	onNodeClick
+	onNodeClick,
+	isMousePressed
 }) => {
 	const matrix: Array<Array<Point>> = [];
 	for (let y = 0; y < height; y++) {
@@ -21,6 +23,7 @@ const Board: FunctionComponent<BoardProps> = ({
 		}
 		matrix.push(row);
 	}
+
 	return (
 		<div>
 			<table style={{ marginLeft: "auto", marginRight: "auto" }}>
@@ -29,7 +32,10 @@ const Board: FunctionComponent<BoardProps> = ({
 						<tr key={`y_${y_index}`}>
 							{row.map((field, x_index) => (
 								<th key={`x_${x_index}`}>
-									<Field {...field} onClick={onNodeClick} />
+									<Field
+										{...{ ...field, isMousePressed }}
+										onClick={onNodeClick}
+									/>
 								</th>
 							))}
 						</tr>

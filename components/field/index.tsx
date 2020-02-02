@@ -7,13 +7,24 @@ type FieldProps = {
 	x: number;
 	y: number;
 	onClick: (point: Point) => void;
+	isMousePressed: () => boolean;
 };
-const Field: FunctionComponent<FieldProps> = ({ x, y, onClick }) => (
+const Field: FunctionComponent<FieldProps> = ({
+	x,
+	y,
+	onClick,
+	isMousePressed
+}) => (
 	<div
 		id={pointId({ x, y })}
 		className="unvisited"
-		style={{ width: "20px", height: "20px" }}
+		style={{ width: "20px", height: "20px", userSelect: "none" }}
 		onClick={() => onClick({ x, y })}
+		onMouseEnter={() => {
+			if (isMousePressed()) {
+				onClick({ x, y });
+			}
+		}}
 	/>
 );
 export default Field;
