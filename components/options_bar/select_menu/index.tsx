@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState} from "react";
+import React, { FunctionComponent, useState } from "react";
 import { Box, Flex, Text } from "rebass";
 import SelectItem from "./select_item";
 
@@ -12,14 +12,7 @@ type SelectMenuProps<T> = {
 
 function SelectMenu<T>(props: SelectMenuProps<T>) {
 	const { labelText, items, ItemComponent, onItemClick, initIndex } = props;
-	const [{ current, previous }, select] = useState({
-		current: initIndex ? initIndex : 0,
-		previous: -1
-	});
-	const selectItem = (index: number) => {
-		if (index === current) return;
-		select({ previous: current, current: index });
-	};
+	const [current, selectItem] = useState(initIndex ? initIndex : 0);
 
 	return (
 		<Box>
@@ -35,9 +28,7 @@ function SelectMenu<T>(props: SelectMenuProps<T>) {
 							selectItem(index);
 						}}
 					>
-						<SelectItem
-							{...{ index, item, current, previous, ItemComponent }}
-						/>
+						<SelectItem {...{ index, item, current, ItemComponent }} />
 					</div>
 				))}
 			</Flex>

@@ -19,7 +19,7 @@ const Field: FunctionComponent<FieldProps> = ({
 		id={pointId({ x, y })}
 		className="unvisited"
 		style={{ width: "20px", height: "20px", userSelect: "none" }}
-		onClick={() => onClick({ x, y })}
+		onMouseDown={() => onClick({ x, y })}
 		onMouseEnter={() => {
 			if (isMousePressed()) {
 				onClick({ x, y });
