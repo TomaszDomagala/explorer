@@ -4,12 +4,18 @@ import { Box, Flex, Button, Text } from "rebass";
 
 import SelectMenu, { Select } from "./select_menu";
 import EmojiItem from "./select_menu/emoji_item";
+import {
+	NormalButton,
+	PrimaryButton
+} from "../../shared/components/gradient_button";
+import "./style.scss";
 
 type OptionProps = {
 	changeBrush: (brush: Brush) => void;
 	changeAlgorithm: (algorithm: Algorithm) => void;
 	changeSize: (size: Size) => void;
 	startSearch: () => void;
+	clearBoard: () => void;
 };
 
 type ItemData<T> = {
@@ -49,10 +55,10 @@ const AlgorithmComponent: FunctionComponent<{ item: ItemData<Algorithm> }> = ({
 }) => <EmojiItem {...{ text, symbol }} />;
 
 const OptionsBar: FunctionComponent<OptionProps> = props => {
-	const { startSearch, changeBrush, changeAlgorithm } = props;
+	const { startSearch, changeBrush, changeAlgorithm, clearBoard } = props;
 
 	return (
-		<Flex>
+		<Flex className="option-bar">
 			<Box mr={4}>
 				<SelectBrush
 					labelText="Select Brush"
@@ -73,17 +79,39 @@ const OptionsBar: FunctionComponent<OptionProps> = props => {
 				}}
 				ItemComponent={AlgorithmComponent}
 			/>
-			<Button
-				my="auto"
-				height={"2.rem"}
-				ml={3}
-				bg="limegreen"
+
+			<PrimaryButton
+				style={{
+					marginLeft: "30px",
+					marginTop: "auto"
+				}}
 				onClick={startSearch}
 			>
-				<Text fontFamily="Noto Sans" fontWeight="bold" fontSize={3}>
+				<Text
+					fontFamily="Noto Sans"
+					fontSize={2}
+					fontWeight="bold"
+					color="white"
+				>
 					Start
 				</Text>
-			</Button>
+			</PrimaryButton>
+			<NormalButton
+				style={{
+					marginLeft: "30px",
+					marginTop: "auto"
+				}}
+				onClick={clearBoard}
+			>
+				<Text
+					fontFamily="Noto Sans"
+					fontSize={2}
+					fontWeight="bold"
+					color="rgba(0,0,0,0.6)"
+				>
+					Clear
+				</Text>
+			</NormalButton>
 		</Flex>
 	);
 };

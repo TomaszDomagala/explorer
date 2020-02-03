@@ -47,17 +47,7 @@ const Controller: FunctionComponent = () => {
 	const [goal, setGoal] = useState({ x: width - 1, y: height - 1 });
 	const [ctrlState, setCtrlState] = useState(ControllerState.EditBoard);
 	const [mouseDown, setMouseDown] = useState(0);
-	const [timeoutId, setTimeoutId] = useState(0);
-	const [incr, decr] = [
-		() => {
-			setMouseDown(x => x + 1);
-			clearTimeout(timeoutId);
-			const id = setTimeout(() => setMouseDown(0), 3000);
-			setTimeoutId(id);
-		},
-		() => setMouseDown(x => Math.max(x - 1, 0))
-	];
-	useEffect(() => console.log(mouseDown), [mouseDown]);
+	const [incr, decr] = [() => setMouseDown(1), () => setMouseDown(0)];
 	const animationId = useRef(0);
 	const board: MutableRefObject<Node[][]> = useRef([]);
 	useEffect(() => {
@@ -177,6 +167,23 @@ const Controller: FunctionComponent = () => {
 		changeFieldState(start, FieldState.Start);
 		changeFieldState(goal, FieldState.Goal);
 	};
+	const clearBoard = () => {
+		if (ctrlState === ControllerState.SearchActive) return;
+		if (ctrlState === ControllerState.SearchDone) {
+			clearAfterSearch();
+			setCtrlState(ControllerState.EditBoard);
+			return;
+		}
+
+		for (let y = 0; y < height; y++) {
+			for (let x = 0; x < width; x++) {
+				board.current[y][x].walkable = true;
+				changeFieldState({ x, y }, FieldState.Unvisited);
+			}
+		}
+		changeFieldState(start, FieldState.Start);
+		changeFieldState(goal, FieldState.Goal);
+	};
 
 	const startSearch = () => {
 		if (ctrlState === ControllerState.SearchActive) return;
@@ -200,7 +207,13 @@ const Controller: FunctionComponent = () => {
 	return (
 		<div>
 			<OptionsBar
-				{...{ changeAlgorithm, changeBrush, changeSize, startSearch }}
+				{...{
+					changeAlgorithm,
+					changeBrush,
+					changeSize,
+					startSearch,
+					clearBoard
+				}}
 			/>
 			<Box mt={4}>
 				<Board {...{ width, height, onNodeClick, isMousePressed }} />

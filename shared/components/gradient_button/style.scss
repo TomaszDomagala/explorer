@@ -1,0 +1,50 @@
+$border-color: #b3b6b7;
+$bg-color1: rgb(238, 238, 238);
+$bg-color2: rgba(223, 223, 223, 1);
+
+$primary-border-color: #43a047;
+$primary-bg-color1: rgba(30, 207, 41, 1);
+$primary-bg-color2: rgba(56, 168, 28, 1);
+
+.button {
+	display: inline-block;
+	cursor: pointer;
+	padding: 0.5rem 1rem;
+	border-radius: 0.2rem;
+	border-style: solid;
+	border-width: 1px;
+	border-color: $border-color;
+	height: fit-content;
+	width: fit-content;
+	background: $bg-color1;
+	background: linear-gradient(180deg, $bg-color1 0%, $bg-color2 100%);
+
+	&:hover {
+		background: darken($bg-color1, 3%);
+		background: linear-gradient(
+			180deg,
+			darken($bg-color1, 3%) 0%,
+			darken($bg-color2, 3%) 100%
+		);
+	}
+
+	&--primary {
+		@extend .button;
+		background: $primary-bg-color1;
+		background: linear-gradient(
+			180deg,
+			$primary-bg-color1 0%,
+			$primary-bg-color2 100%
+		);
+		border-color: $primary-border-color;
+
+		&:hover {
+			background: darken($primary-bg-color1, 3%);
+			background: linear-gradient(
+				180deg,
+				darken($primary-bg-color1, 3%) 0%,
+				darken($primary-bg-color2, 3%) 100%
+			);
+		}
+	}
+}
