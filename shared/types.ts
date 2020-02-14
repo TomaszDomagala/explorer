@@ -15,15 +15,15 @@ export type Node = {
 export type ArrayBoard = Node[];
 
 export type SearchResult = {
-	visitOrder: Node[];
-	visitedPaths: Node[][];
+	visitOrder: Point[];
+	visitedPaths: Point[][];
 	totalSteps: number;
 };
 
 export type SearchAlgorithm = (
 	start: Point,
 	goal: Point,
-	board: ArrayBoard
+	board: Node[][]
 ) => SearchResult;
 
 export enum ControllerState {

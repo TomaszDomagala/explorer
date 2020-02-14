@@ -16,7 +16,7 @@ import {
 	SearchResult
 } from "../../shared/types";
 import { pair } from "../../shared/helpers";
-import { pointId, ntp, cmpPoints } from "../../shared/helpers";
+import { pointId, cmpPoints } from "../../shared/helpers";
 import { Box } from "rebass";
 import { Map } from "immutable";
 import dijkstra from "../../algorithms/dijkstra";
@@ -116,7 +116,7 @@ const Controller: FunctionComponent = () => {
 		const { totalSteps, visitOrder, visitedPaths } = res;
 		const ceiling = Math.min(totalSteps, index + stepsPerFrame);
 		for (let i = index; i < ceiling; i++) {
-			const point = ntp(visitOrder[i]);
+			const point = visitOrder[i];
 			changeFieldState(point, FieldState.Visited);
 		}
 		visitedPaths[index - 1].forEach(({ x, y }) =>
@@ -192,7 +192,8 @@ const Controller: FunctionComponent = () => {
 		}
 		setCtrlState(ControllerState.SearchActive);
 		const alg = algorithmMap.get(algorithm)!;
-		const res = alg(start, goal, board.current.flat());
+		const res = alg(start, goal, board.current);
+		res.visitedPaths[-1] = [];
 		animationId.current = requestAnimationFrame(() => animate(0, 10, res));
 	};
 
