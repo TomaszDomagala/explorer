@@ -179,7 +179,7 @@ const Controller: FunctionComponent = () => {
     const alg = algorithmMap.get(algorithm)!;
     const res = alg(start, goal, board.current);
     res.visitedPaths[-1] = [];
-    animationId.current = requestAnimationFrame(() => animate(0, 2, res));
+    animationId.current = requestAnimationFrame(() => animate(0, 5, res));
   };
 
   useEffect(() => {
